@@ -171,6 +171,9 @@ namespace TextReader
                 if (_reader.State == ReaderState.NotSpeaking)
                 {
                     unindicateWord();
+                    // When we sop speaking thre's no long a 
+                    // need to remeber which word was read last
+                    lastWord = null;
                 }
             }
             else if (e.PropertyName == "Rate")
