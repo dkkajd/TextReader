@@ -31,8 +31,6 @@ namespace TextReader
                     {ReaderState.Speaking, "Speaking"},
                     {ReaderState.StartedSpeaking, "Started speaking"}};
 
-    //    public static RoutedCommand RemoveDblCommand = new RoutedCommand();
-
         public MainWindow()
         {
             InitializeComponent();
@@ -158,10 +156,14 @@ namespace TextReader
                 lastWord.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.LightGreen);
 
                 Rect rect = start.GetCharacterRect(LogicalDirection.Forward);
-                if (sv != null && rect != null)
+
+                // if the text is in the window
+                if (rect != null && rect.Y >= 0 && rect.Y < rtb.ExtentHeight &&!rect.IsEmpty)
                 {
-                    rect.Y -= sv.ActualHeight / 2 - rect.Height / 2;
-                    sv.ScrollToVerticalOffset(rect.Y);
+                    // Scroll down so text is in the middle of the window
+                    double y = (rtb.ViewportHeight / 2 - rect.Y-rect.Height/2);
+                    
+                    rtb.ScrollToVerticalOffset(rtb.VerticalOffset - y);
                 }
                 
             }

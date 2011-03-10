@@ -53,25 +53,24 @@
             </ToolBar>
         </ToolBarTray>
         
-        <ScrollViewer Name="sv" VerticalScrollBarVisibility="Auto" Grid.Row="1" Grid.RowSpan="1">
-            <RichTextBox Name="rtb" VerticalScrollBarVisibility="Disabled" BorderThickness="0">
-                <FlowDocument LineHeight="1">
-                    <Paragraph>
-                        Thank you for using text reader.
-                    </Paragraph>
-                    <Paragraph>
-                        You can set a voice and start/stop reading from the toolbar.
-                    </Paragraph>
-                    <Paragraph>
-                        "Remove Empty lines" will remove any empty paragraphs in the text field.
-                    </Paragraph>
-                </FlowDocument>
-            </RichTextBox>
-        </ScrollViewer>
+        <RichTextBox Name="rtb" Grid.Row="1" VerticalScrollBarVisibility="Auto" BorderThickness="0">
+            <FlowDocument LineHeight="1" PageHeight="30" MaxPageHeight="30" MinPageHeight="30">
+                <Paragraph>
+                    Thank you for using text reader.
+                </Paragraph>
+                <Paragraph>
+                    You can set a voice and start/stop reading from the toolbar.
+                </Paragraph>
+                <Paragraph>
+                    "Remove Empty lines" will remove any empty paragraphs in the text field.
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
+        
         <StatusBar Grid.Row="2" Name="sbar" VerticalAlignment="Bottom" >
             <StatusBarItem HorizontalAlignment="Right">
                 <Label Name="txtStatus" />
             </StatusBarItem>
         </StatusBar>
-        </Grid>
+    </Grid>
 </Window>
