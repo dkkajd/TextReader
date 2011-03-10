@@ -1,0 +1,77 @@
+﻿<Window x:Class="TextReader.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:src="clr-namespace:TextReader"
+        Title="MainWindow" Height="350" Width="525">
+    <Window.Resources>
+        <!-- -->
+        <Style x:Key="ToolBarButton" TargetType="Button">
+            <Setter Property="Opacity" Value="0.5"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="True">
+                    <Setter Property="Opacity" Value="1" />
+                </Trigger> 
+            </Style.Triggers>
+        </Style>
+        <RoutedCommand x:Key="RemoveDblCommand" />
+        <RoutedCommand x:Key="HomeCommand" />
+        <RoutedCommand x:Key="EndCommand" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="235*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ToolBarTray>
+            <ToolBar MaxHeight="30">
+                <Button Command="MediaCommands.Play" Style="{StaticResource ToolBarButton}">
+                    <Image Source="toolbargraphics\play.png" />
+                </Button>
+                <Button Command="MediaCommands.Pause" Style="{StaticResource ToolBarButton}">
+                    <Image Source="toolbargraphics\pause.png"/>
+                </Button>
+                <Button Command="MediaCommands.Stop" Style="{StaticResource ToolBarButton}">
+                    <Image Source="toolbargraphics\stop.png"/>
+                </Button>
+            </ToolBar>
+            <ToolBar>
+                <ComboBox Grid.Row="2" HorizontalAlignment="Left"
+                          Name="comboBox1" 
+                          ItemsSource="{Binding}"
+                          Width="120" SelectionChanged="comboBox1_SelectionChanged" />
+                <StackPanel Orientation="Horizontal">
+                <Slider Name="sldSpeakSpeed" Width="100" ValueChanged="sldSpeakSpeed_ValueChanged" Minimum="-5" Maximum="10" SmallChange="1" />
+                <Label Content="{Binding ElementName=sldSpeakSpeed, Path=Value}"/>
+                </StackPanel>
+            </ToolBar>
+            <ToolBar>
+                <Button Content="Home" Command="{StaticResource HomeCommand}"/>
+                <Button Content="End" Command="{StaticResource EndCommand}"/>
+                <Button Content="Remove Empty lines" Name="btnRemoveDbl" Command="{StaticResource RemoveDblCommand}" />
+            </ToolBar>
+        </ToolBarTray>
+        
+        <ScrollViewer Name="sv" VerticalScrollBarVisibility="Auto" Grid.Row="1" Grid.RowSpan="1">
+            <RichTextBox Name="rtb" VerticalScrollBarVisibility="Disabled" BorderThickness="0">
+                <FlowDocument LineHeight="1">
+                    <Paragraph>
+                        Thank you for using text reader.
+                    </Paragraph>
+                    <Paragraph>
+                        You can set a voice and start/stop reading from the toolbar.
+                    </Paragraph>
+                    <Paragraph>
+                        "Remove Empty lines" will remove any empty paragraphs in the text field.
+                    </Paragraph>
+                </FlowDocument>
+            </RichTextBox>
+        </ScrollViewer>
+        <StatusBar Grid.Row="2" Name="sbar" VerticalAlignment="Bottom" >
+            <StatusBarItem HorizontalAlignment="Right">
+                <Label Name="txtStatus" />
+            </StatusBarItem>
+        </StatusBar>
+        </Grid>
+</Window>
