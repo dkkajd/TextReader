@@ -152,6 +152,7 @@ namespace TextReader
         {
             _synth.SpeakAsyncCancelAll();
             _synth.SpeakAsync(richTextBoxToPromt(startingPoint));
+            ReadText = new TextRange(startingPoint, startingPoint);
             if (_synth.State == SynthesizerState.Paused)
             {
                 _synth.Resume();

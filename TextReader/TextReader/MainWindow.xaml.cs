@@ -194,9 +194,12 @@ namespace TextReader
             //// unindicated the last word
             //lastWord.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.White);
             
-            TextRange lastParagraph = new TextRange(lastWord.Start.Paragraph.ContentStart, lastWord.End.Paragraph.ContentEnd);
-            if (lastParagraph != null)
-                lastParagraph.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.White);
+            //if (lastWord.Start.Paragraph != null && lastWord.End.Paragraph != null)
+            {
+                TextRange lastParagraph = new TextRange(lastWord.Start.Paragraph.ContentStart, lastWord.End.Paragraph.ContentEnd);
+                if (lastParagraph != null)
+                    lastParagraph.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.White);
+            }
         }
 
         private void comboBox1_SelectionChanged(object sender, SelectionChangedEventArgs e)
