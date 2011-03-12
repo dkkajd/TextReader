@@ -85,20 +85,23 @@ namespace TextReader
                     count -= length;
                     res = res.GetPositionAtOffset(length);
                     res = res.GetInsertionPosition(LogicalDirection.Forward);
+                    lastPara = res.Paragraph;
                     if (res.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.ElementEnd)
                     {
-                        res = res.GetPositionAtOffset(2);
+                        res = res.GetPositionAtOffset(2,LogicalDirection.Forward);
+                        if (lastPara != null && res.Paragraph == null)
+                            count -= 2;
                     }
-                    if (res != null && lastPara != res.Paragraph)
-                    {
-                        // counter the countdown that happens if we're stood just outside a paragraph
-                        if (lastPara == null)
-                        {
-                            count += 2;
-                        }
-                        lastPara = res.Paragraph;
-                        count -= 2;
-                    }
+                    //if (res != null && lastPara != res.Paragraph)
+                    //{
+                    //    // counter the countdown that happens if we're stood just outside a paragraph
+                    //    if (lastPara == null)
+                    //    {
+                    //        count += 2;
+                    //    }
+                    //    lastPara = res.Paragraph;
+                    //    count -= 2;
+                    //}
                 }
             }
             if (res != null && !res.IsAtInsertionPosition)
