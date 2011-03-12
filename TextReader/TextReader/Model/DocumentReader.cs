@@ -43,19 +43,16 @@ namespace TextReader
 
         void _synth_SpeakProgress(object sender, SpeakProgressEventArgs e)
         {
-            // undo colors
-          //  unindicateWord();
-
             var newPos = GetPositionAtTextOffset(startedReading,e.CharacterPosition);
 
             if (newPos == null)
             {
                 ReadText = null;
             }
-            //    return;
             
             // indicate the word read
-            var end =GetPositionAtTextOffset( newPos,e.Text.Length);
+            var end = GetPositionAtTextOffset(newPos, e.Text.Length);
+            
             if (end == null)
                 end = newPos;
 
@@ -64,17 +61,23 @@ namespace TextReader
 
         static TextPointer GetPositionAtTextOffset(TextPointer source, int count)
         {
-            var res = source;
-            var lastPara = res.Paragraph;
 
+            // this function might be slow if we have to travers across meny blocks,
+            // might be an idea to save positions and counts so you can later check them first
+            // so oyu don't have to recalculate large numbers
+           
+            var res = source;
 
             TextPointer lastPoint = null;
+
+            // we simly travers the textpoint untill we count reaches 0
             while (res != null && count > 0)
             {
                 if (lastPoint != null && lastPoint.CompareTo(res) == 0)
                     break;
                 lastPoint = res;
                 int length = res.GetTextRunLength(LogicalDirection.Forward);
+                // If it's within the run we just jump to the position
                 if (count <= length)
                 {
                     res = res.GetPositionAtOffset(count);
@@ -82,28 +85,22 @@ namespace TextReader
                 }
                 else
                 {
+                    // Otherwise we jump across the run and get to the next position
                     count -= length;
                     res = res.GetPositionAtOffset(length);
                     res = res.GetInsertionPosition(LogicalDirection.Forward);
-                    lastPara = res.Paragraph;
+                    // To check if we exit an paragraph
+                    var lastPara = res.Paragraph;
                     if (res.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.ElementEnd)
                     {
-                        res = res.GetPositionAtOffset(2,LogicalDirection.Forward);
+                        res = res.GetPositionAtOffset(2, LogicalDirection.Forward);
+                        // if we exit the paragraph we count down by two, becuase of the "\n\r"
                         if (lastPara != null && res.Paragraph == null)
                             count -= 2;
                     }
-                    //if (res != null && lastPara != res.Paragraph)
-                    //{
-                    //    // counter the countdown that happens if we're stood just outside a paragraph
-                    //    if (lastPara == null)
-                    //    {
-                    //        count += 2;
-                    //    }
-                    //    lastPara = res.Paragraph;
-                    //    count -= 2;
-                    //}
                 }
             }
+            // Make sure we return either null or a InsertionPosition
             if (res != null && !res.IsAtInsertionPosition)
             {
                 res = res.GetNextInsertionPosition(LogicalDirection.Forward);
@@ -117,7 +114,6 @@ namespace TextReader
             {
                 yield return voice.VoiceInfo.Name;
             }
-            //return _synth.GetInstalledVoices().SelectMany(s => s.VoiceInfo.Name );
         }
 
         public string GetVoice()
