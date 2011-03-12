@@ -60,9 +60,9 @@ namespace TextReader
                 MediaCommands.Stop, StopCmdExecuted, CanExecuteTrue);
             this.CommandBindings.Add(StopCmdBinding);
 
-            CommandBinding RemoveDblCmdBinding = new CommandBinding(
-                (RoutedCommand)Resources["RemoveDblCommand"], RemoveDblCmdExecuted, CanExecuteTrue);
-            this.CommandBindings.Add(RemoveDblCmdBinding);
+            CommandBinding RemoveEmptyCmdBinding = new CommandBinding(
+                (RoutedCommand)Resources["RemoveEmptyCommand"], RemoveEmptyCmdExecuted, CanExecuteTrue);
+            this.CommandBindings.Add(RemoveEmptyCmdBinding);
 
             CommandBinding HomeCmdBinding = new CommandBinding(
                 (RoutedCommand)Resources["HomeCommand"], HomeCmdExecuted, CanExecuteTrue);
@@ -107,7 +107,7 @@ namespace TextReader
         {
             _reader.StopReading();
         }
-        void RemoveDblCmdExecuted(object target, ExecutedRoutedEventArgs e)
+        void RemoveEmptyCmdExecuted(object target, ExecutedRoutedEventArgs e)
         {
             var blocksToRemove = new List<Block>();
             foreach (var block in rtb.Document.Blocks)

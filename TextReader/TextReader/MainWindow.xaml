@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:src="clr-namespace:TextReader"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Text Reader" Height="350" Width="540" Icon="icon.png">
     <Window.Resources>
         <!-- -->
         <Style x:Key="ToolBarButton" TargetType="Button">
@@ -13,7 +13,7 @@
                 </Trigger> 
             </Style.Triggers>
         </Style>
-        <RoutedCommand x:Key="RemoveDblCommand" />
+        <RoutedCommand x:Key="RemoveEmptyCommand" />
         <RoutedCommand x:Key="HomeCommand" />
         <RoutedCommand x:Key="EndCommand" />
     </Window.Resources>
@@ -25,7 +25,7 @@
         </Grid.RowDefinitions>
 
         <ToolBarTray>
-            <ToolBar MaxHeight="30">
+            <ToolBar MaxHeight="40">
                 <Button Command="MediaCommands.Play" Style="{StaticResource ToolBarButton}">
                     <Image Source="toolbargraphics\play.png" />
                 </Button>
@@ -37,24 +37,29 @@
                 </Button>
             </ToolBar>
             <ToolBar>
-                <ComboBox Grid.Row="2" HorizontalAlignment="Left"
-                          Name="comboBox1" 
+                <ComboBox Name="comboBox1" 
                           ItemsSource="{Binding}"
                           Width="120" SelectionChanged="comboBox1_SelectionChanged" />
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Height="25">
                 <Slider Name="sldSpeakSpeed" Width="100" ValueChanged="sldSpeakSpeed_ValueChanged" Minimum="-5" Maximum="10" SmallChange="1" />
                 <Label Content="{Binding ElementName=sldSpeakSpeed, Path=Value}"/>
                 </StackPanel>
             </ToolBar>
-            <ToolBar>
-                <Button Content="Home" Command="{StaticResource HomeCommand}"/>
-                <Button Content="End" Command="{StaticResource EndCommand}"/>
-                <Button Content="Remove Empty lines" Name="btnRemoveDbl" Command="{StaticResource RemoveDblCommand}" />
+            <ToolBar MaxHeight="40">
+                <Button Command="{StaticResource HomeCommand}">
+                    <Image Source="toolbargraphics\home.png"/>
+                </Button>
+                <Button Command="{StaticResource EndCommand}">
+                    <Image Source="toolbargraphics\end.png"/>
+                </Button>
+                <Button Command="{StaticResource RemoveEmptyCommand}" >
+                    <Image Source="toolbargraphics\rmvempt.png"/>
+                </Button>
             </ToolBar>
         </ToolBarTray>
         
         <RichTextBox Name="rtb" Grid.Row="1" VerticalScrollBarVisibility="Auto" BorderThickness="0">
-            <FlowDocument LineHeight="1" PageHeight="30" MaxPageHeight="30" MinPageHeight="30">
+            <FlowDocument LineHeight="5" PageHeight="30" MaxPageHeight="30" MinPageHeight="30">
                 <Paragraph>
                     Thank you for using text reader.
                 </Paragraph>
