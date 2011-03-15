@@ -176,6 +176,9 @@ namespace TextReader
                     // When we sop speaking thre's no long a 
                     // need to remeber which word was read last
                     lastWord = null;
+
+                    // The pause and play buttons might wan to changed
+                    CommandManager.InvalidateRequerySuggested();
                 }
             }
             else if (e.PropertyName == "Rate")
