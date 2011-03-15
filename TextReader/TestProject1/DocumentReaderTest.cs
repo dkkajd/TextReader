@@ -2,6 +2,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Windows.Documents;
+using System.Speech.Synthesis;
+using System.Collections.Generic;
+using System.Threading;
+using System.Linq;
 
 namespace TestTextReader
 {
@@ -161,6 +165,80 @@ namespace TestTextReader
             actual = DocumentReader_Accessor.GetPositionAtTextOffset(source, count);
             Assert.AreEqual(actual.CompareTo(expected), 0);
 
+        }
+
+
+
+        Dictionary<TextPointer,String> readWords;
+
+        /// <summary>
+        ///A test for _synth_SpeakProgress
+        ///</summary>
+        [TestMethod()]
+        [DeploymentItem("TextReader.exe")]
+        public void _synth_SpeakProgressTest()
+        {
+            DocumentReader dr = new DocumentReader();
+            dr.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(dr_PropertyChanged);
+
+            // Set up a document
+            var doc = new FlowDocument();
+            var line01 = new Run("Hey");
+            var line02 = new Run("Yo there");
+            var line03 = new Run("");
+            var line04 = new Run("I'm good");
+            doc.Blocks.Add(new Paragraph(line01));
+            doc.Blocks.Add(new Paragraph(line02));
+            doc.Blocks.Add(new Paragraph(line03));
+            doc.Blocks.Add(new Paragraph(line04));
+
+            readWords = new Dictionary<TextPointer, string>();
+
+            dr.StartReading(doc.ContentStart);
+
+            DateTime startTime = DateTime.Now;
+            TimeSpan timeout = new TimeSpan(0,0,30);
+            while (dr.State != ReaderState.NotSpeaking && DateTime.Now.Subtract(startTime).CompareTo(timeout) < 0)
+            {
+                Thread.Sleep(new TimeSpan(0,0,2));
+            }
+            if (dr.State != ReaderState.NotSpeaking)
+            {
+                Assert.Inconclusive("Reader didn't stop in time, so inconclusive.");
+            }
+            if (readWords.Count != 6)
+            {
+                Assert.Fail("Too meny or few words read");
+            }
+            // tests that it is ral words
+            // don't really test that it read the right words.
+            foreach (var word in readWords)
+            {
+                if (!word.Key.IsInSameDocument(doc.ContentStart))
+                {
+                    Assert.Fail("Return an invalid word");
+                }
+
+                char[] textBuffer = new char[word.Value.Length];
+                word.Key.GetTextInRun(LogicalDirection.Forward,textBuffer,0,word.Value.Length);
+                var value = new String(textBuffer);
+                if (word.Value != value)
+                {
+                    Assert.Fail("Read a wrong word");
+                }
+            }
+        }
+
+        void dr_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            var dr = sender as DocumentReader;
+            if (sender != null)
+            {
+                if (e.PropertyName == "ReadText")
+                {
+                    readWords.Add(dr.ReadText.Start, dr.ReadText.Text);
+                }
+            }
         }
     }
 }

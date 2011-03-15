@@ -22,6 +22,11 @@ namespace TextReader
 
         private SpeechSynthesizer _synth;
 
+        private TextPointer startedReading;
+        private int countToLastPoint;
+        private TextPointer lastPoint;
+        
+
         public DocumentReader()
         {
             State = ReaderState.NotSpeaking;
@@ -41,21 +46,47 @@ namespace TextReader
             State = ReaderState.NotSpeaking;
         }
 
+        // this will be called each time a new word is begin to be read by the SpeechSynthesizer
         void _synth_SpeakProgress(object sender, SpeakProgressEventArgs e)
         {
-            var newPos = GetPositionAtTextOffset(startedReading,e.CharacterPosition);
+            TextPointer newPos;
+
+            // Get a TextPointer for the start of the word
+            if (countToLastPoint < e.CharacterPosition)
+            {
+                // use he lsatPoint if posible
+                newPos = GetPositionAtTextOffset(lastPoint, e.CharacterPosition - countToLastPoint);
+            }
+            else
+            {
+                // otherwise start from the start
+                newPos = GetPositionAtTextOffset(startedReading, e.CharacterPosition);
+            }
+
 
             if (newPos == null)
             {
                 ReadText = null;
+                return;
             }
             
-            // indicate the word read
+            // And get the end
             var end = GetPositionAtTextOffset(newPos, e.Text.Length);
-            
-            if (end == null)
-                end = newPos;
 
+            if (end == null)
+            {
+                end = newPos;
+            }
+            else
+            {
+                // update lastpoint
+                lastPoint = end;
+                countToLastPoint = e.CharacterPosition + e.Text.Length;
+            }
+
+            // Create a new TextRange that indicates the read word
+            // a new TextRange is created to make sure protychanged is called
+            // and noone else use the old textrange.
             ReadText = new TextRange(newPos, end);
         }
 
@@ -157,6 +188,8 @@ namespace TextReader
                 _synth.Resume();
             }
             startedReading = startingPoint;
+            lastPoint = startedReading;
+            countToLastPoint = 0;
             State = ReaderState.StartedSpeaking;
         }
         public void StopReading()
@@ -181,7 +214,6 @@ namespace TextReader
             }
         }
 
-        TextPointer startedReading;
         private String richTextBoxToPromt(TextPointer startingPoint)
         {
             var res = new StringBuilder();
