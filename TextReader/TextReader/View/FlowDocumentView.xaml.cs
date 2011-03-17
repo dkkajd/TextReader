@@ -105,6 +105,11 @@ namespace TextReader.View
                 {
                     lastParagraph = new TextRange(lastWord.Start.Paragraph.ContentStart, lastWord.End.Paragraph.ContentEnd);
                     lastParaBackground = lastParagraph.GetPropertyValue(TextElement.BackgroundProperty);
+                    if (lastParaBackground != null &&
+                        !TextElement.BackgroundProperty.IsValidValue(lastParaBackground))
+                    {
+                        lastParaBackground = null;
+                    }
                     lastParagraph.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Yellow);
                 }
                 lastWordBackground = lastWord.GetPropertyValue(TextElement.BackgroundProperty);
