@@ -77,19 +77,35 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Model\DocumentReader.cs" />
-    <Compile Include="MyExtensions.cs" />
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
+    <Compile Include="ViewModel\AttachedProperties.cs" />
+    <Compile Include="ViewModel\FlowDocumentViewModel.cs" />
+    <Compile Include="ViewModel\MainWindowViewModel.cs" />
+    <Compile Include="ViewModel\RelayCommand.cs" />
+    <Compile Include="ViewModel\ViewModelBase.cs" />
+    <Compile Include="ViewModel\WorkspaceViewModel.cs" />
+    <Compile Include="View\FlowDocumentView.xaml.cs">
+      <DependentUpon>FlowDocumentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
+    <Page Include="View\FlowDocumentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WelcomeText.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>qs</CustomToolNamespace>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -138,20 +154,17 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="View\" />
+    <Resource Include="View\icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="toolbargraphics\pause.png" />
-    <Resource Include="toolbargraphics\play.png" />
-    <Resource Include="toolbargraphics\stop.png" />
+    <Resource Include="View\toolbargraphics\pause.png" />
+    <Resource Include="View\toolbargraphics\play.png" />
+    <Resource Include="View\toolbargraphics\stop.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="toolbargraphics\end.png" />
-    <Resource Include="toolbargraphics\home.png" />
-    <Resource Include="toolbargraphics\rmvempt.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="icon.png" />
+    <Resource Include="View\toolbargraphics\end.png" />
+    <Resource Include="View\toolbargraphics\home.png" />
+    <Resource Include="View\toolbargraphics\rmvempt.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

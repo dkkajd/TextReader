@@ -150,7 +150,7 @@ namespace TextReader
         public string GetVoice()
         {
 
-            return _synth.Voice.Name;
+           return _synth.Voice.Name;
         }
         public string SetVoice(String voice)
         {

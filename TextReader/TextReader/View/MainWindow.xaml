@@ -1,0 +1,90 @@
+﻿<Window x:Class="TextReader.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:v="clr-namespace:TextReader.View"
+        xmlns:vm="clr-namespace:TextReader.ViewModel"
+        Title="Text Reader"
+        vm:AttachedProperties.RegisterCommandBindings="{Binding CommandBindings}" 
+        Icon="icon.png"
+        Height="600" Width="573">
+    <Window.Resources>
+        <Style x:Key="ToolBarButton" TargetType="Button">
+            <Setter Property="Opacity" Value="0.5"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="True">
+                    <Setter Property="Opacity" Value="1" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="200*" />
+        </Grid.RowDefinitions>
+        <Menu>
+            <MenuItem Header="_File">
+                <MenuItem Header="_Exit" Command="{Binding CloseCommand}" />
+            </MenuItem>
+        </Menu>
+
+        <ToolBarTray Grid.Row="1">
+            <ToolBar MaxHeight="40">
+                <Button Command="MediaCommands.Play" Style="{StaticResource ToolBarButton}">
+                    <Image Source="toolbargraphics\play.png" />
+                </Button>
+                <Button Command="MediaCommands.Pause" Style="{StaticResource ToolBarButton}">
+                    <Image Source="toolbargraphics\pause.png"/>
+                </Button>
+                <Button Command="MediaCommands.Stop" Style="{StaticResource ToolBarButton}">
+                    <Image Source="toolbargraphics\stop.png"/>
+                </Button>
+            </ToolBar>
+            <ToolBar>
+                <StackPanel Orientation="Horizontal" Height="25">
+                    <ComboBox Name="comboBox1" 
+                          ItemsSource="{Binding Voices}" SelectedValue="{Binding Voice}" 
+                          Width="120" >
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Height="25">
+                    <Slider Name="sldSpeakSpeed" Width="100" Value="{Binding Rate}" Minimum="-5" Maximum="10" SmallChange="1" />
+                    <Label Content="{Binding Rate}"/>
+                </StackPanel>
+            </ToolBar>
+            <ToolBar MaxHeight="40">
+                <Button Command="EditingCommands.MoveToDocumentStart" Style="{StaticResource ToolBarButton}">
+                    <Image Source="toolbargraphics\home.png"/>
+                </Button>
+                <Button Command="EditingCommands.MoveToDocumentEnd" Style="{StaticResource ToolBarButton}">
+                    <Image Source="toolbargraphics\end.png"/>
+                </Button>
+                <Button Command="{Binding RemoveEmptyCommand}" Style="{StaticResource ToolBarButton}">
+                    <Image Source="toolbargraphics\rmvempt.png"/>
+                </Button>
+            </ToolBar>
+        </ToolBarTray>
+        <!--
+        <ItemsControl Grid.Row="2" ItemsSource="">
+            <ItemsControl.itemsT .ItemTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>-->
+        <TabControl Grid.Row="2" ItemsSource="{Binding Documents}" SelectedItem="{Binding Document}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Path=Name}"/>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Border BorderBrush="Aqua" BorderThickness="1">
+                            <v:FlowDocumentView/>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
+    </Grid>
+</Window>
