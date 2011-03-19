@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Windows.Controls;
 using System.Speech.Synthesis;
 using System.Windows.Documents;
-using System.Windows;
-using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
-using System.Windows.Media;
-using System.Windows.Controls.Primitives;
 using System.ComponentModel;
 
 namespace TextReader

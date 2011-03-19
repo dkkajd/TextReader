@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using TextReader.ViewModel;
 
 namespace TextReader.View
@@ -69,7 +61,6 @@ namespace TextReader.View
         object lastWordBackground;
         TextRange lastParagraph;
         object lastParaBackground;
-        //Paragraph lastParagraph;
         void ReadWord_Changed(object sender, EventArgs e)
         {
             var fdvm = (DataContext as FlowDocumentViewModel);
@@ -81,7 +72,6 @@ namespace TextReader.View
             var textRange = sender as TextRange;
             if (textRange != null)
             {
-                //bool paragraphChanged = true;
                 var start = textRange.Start;
                 var end = textRange.End;
                 var newWord = new TextRange(start, end);

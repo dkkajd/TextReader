@@ -2,10 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Windows.Documents;
-using System.Speech.Synthesis;
 using System.Collections.Generic;
 using System.Threading;
-using System.Linq;
 
 namespace TestTextReader
 {

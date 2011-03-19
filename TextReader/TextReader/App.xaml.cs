@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using TextReader.ViewModel;
 using TextReader.View;
 
@@ -18,7 +13,7 @@ namespace TextReader
         {
             base.OnStartup(e);
 
-            var window = new View.MainWindow();
+            var window = new MainWindow();
 
             // Create the ViewModel to which the main window binds
             var viewModel = new MainWindowViewModel();
