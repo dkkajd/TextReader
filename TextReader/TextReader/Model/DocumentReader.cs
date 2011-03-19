@@ -15,16 +15,38 @@ using System.ComponentModel;
 namespace TextReader
 {
     /// <summary>
-    /// The class the controls all the reading from a selected RichTextBox
+    /// The class the controls all the reading from a TextPointer, and forward.
     /// </summary>
     class DocumentReader : INotifyPropertyChanged
     {
 
+        /// <summary>
+        /// The SpeechSynthesizer that does all the hard work with reading up the text.
+        /// </summary>
         private SpeechSynthesizer _synth;
 
+        /// <summary>
+        /// Indicates where the synthesizer was started to read
+        /// </summary>
         private TextPointer startedReading;
-        private int countToLastPoint;
+        /// <summary>
+        /// Indicates where the synthesizer was set to stop reading. Where it will start reading from again when it stops.
+        /// </summary>
+        private TextPointer breakPoint;
+        /// <summary>
+        /// Set when the user asks to stop reading, so it doesn't start rading from breakPoint again
+        /// </summary>
+        private bool stopReading;
+        /// <summary>
+        /// Used with countToLastPoint in SpeakProgress to save where it came to, so it doesn't have to recalculate the
+        /// position with GetPositionAtTextOffset.
+        /// </summary>
         private TextPointer lastPoint;
+        /// <summary>
+        /// Used with lastPoint in SpeakProgress to save where it came to, so it doesn't have to recalculate the
+        /// position with GetPositionAtTextOffset.
+        /// </summary>
+        private int countToLastPoint;
         
 
         public DocumentReader()
@@ -43,10 +65,17 @@ namespace TextReader
 
         void _synth_SpeakCompleted(object sender, SpeakCompletedEventArgs e)
         {
-            State = ReaderState.NotSpeaking;
+            if (stopReading | breakPoint.CompareTo(breakPoint.DocumentEnd) == 0)
+            {
+                State = ReaderState.NotSpeaking;
+            }
+            else
+            {
+                StartReading(breakPoint);
+            }
         }
 
-        // this will be called each time a new word is begin to be read by the SpeechSynthesizer
+        // this will be called each time a new word is begining to be read by the SpeechSynthesizer
         void _synth_SpeakProgress(object sender, SpeakProgressEventArgs e)
         {
             TextPointer newPos;
@@ -90,12 +119,12 @@ namespace TextReader
             ReadText = new TextRange(newPos, end);
         }
 
-        static TextPointer GetPositionAtTextOffset(TextPointer source, int count)
+        private static TextPointer GetPositionAtTextOffset(TextPointer source, int count)
         {
 
             // this function might be slow if we have to travers across meny blocks,
             // might be an idea to save positions and counts so you can later check them first
-            // so oyu don't have to recalculate large numbers
+            // so you don't have to recalculate large numbers
            
             var res = source;
 
@@ -181,19 +210,28 @@ namespace TextReader
         public void StartReading(TextPointer startingPoint)
         {
             _synth.SpeakAsyncCancelAll();
-            _synth.SpeakAsync(richTextBoxToPromt(startingPoint));
+
+            startedReading = startingPoint;
+            lastPoint = startedReading;
+            countToLastPoint = 0;
+            breakPoint = GetPositionAtTextOffset(startedReading, 1000);
+            if (breakPoint == null)
+                breakPoint = startedReading.DocumentEnd;
+            if (breakPoint.Paragraph != null)
+                breakPoint = breakPoint.Paragraph.ContentEnd;
+            stopReading = false;
+
+            _synth.SpeakAsync(richTextBoxToPromt(startingPoint,breakPoint));
             ReadText = new TextRange(startingPoint, startingPoint);
             if (_synth.State == SynthesizerState.Paused)
             {
                 _synth.Resume();
             }
-            startedReading = startingPoint;
-            lastPoint = startedReading;
-            countToLastPoint = 0;
             State = ReaderState.StartedSpeaking;
         }
         public void StopReading()
         {
+            stopReading = true;
             _synth.SpeakAsyncCancelAll();
         }
 
@@ -214,11 +252,12 @@ namespace TextReader
             }
         }
 
-        private String richTextBoxToPromt(TextPointer startingPoint)
+        private String richTextBoxToPromt(TextPointer startingPoint, TextPointer endingPoint)
         {
             var res = new StringBuilder();
-        
-            TextRange text = new TextRange(startingPoint, startingPoint.DocumentEnd);
+
+
+            TextRange text = new TextRange(startingPoint, endingPoint);
             res.Append(text.Text);
             
             return res.ToString();
