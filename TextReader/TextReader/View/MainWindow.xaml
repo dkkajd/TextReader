@@ -5,7 +5,7 @@
         xmlns:vm="clr-namespace:TextReader.ViewModel"
         Title="Text Reader"
         vm:AttachedProperties.RegisterCommandBindings="{Binding CommandBindings}" 
-        Icon="icon.png"
+        Icon="icon.ico"
         Height="600" Width="573">
     <Window.Resources>
         <Style x:Key="ToolBarButton" TargetType="Button">
@@ -30,50 +30,55 @@
         </Menu>
 
         <ToolBarTray Grid.Row="1">
-            <ToolBar MaxHeight="40">
+            <ToolBar>
+                <Button Command="ApplicationCommands.New" Style="{StaticResource ToolBarButton}">
+                    <Image Source="toolbargraphics\new.ico" />
+                </Button>
+            </ToolBar>
+            <ToolBar>
                 <Button Command="MediaCommands.Play" Style="{StaticResource ToolBarButton}">
-                    <Image Source="toolbargraphics\play.png" />
+                    <Image Source="toolbargraphics\play.ico" />
                 </Button>
                 <Button Command="MediaCommands.Pause" Style="{StaticResource ToolBarButton}">
-                    <Image Source="toolbargraphics\pause.png"/>
+                    <Image Source="toolbargraphics\pause.ico"/>
                 </Button>
                 <Button Command="MediaCommands.Stop" Style="{StaticResource ToolBarButton}">
-                    <Image Source="toolbargraphics\stop.png"/>
+                    <Image Source="toolbargraphics\stop.ico"/>
                 </Button>
             </ToolBar>
             <ToolBar>
                 <StackPanel Orientation="Horizontal" Height="25">
-                    <ComboBox Name="comboBox1" 
+                    <ComboBox
                           ItemsSource="{Binding Voices}" SelectedValue="{Binding Voice}" 
-                          Width="120" >
+                          Width="120" IsEditable="True">
                     </ComboBox>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Height="25">
-                    <Slider Name="sldSpeakSpeed" Width="100" Value="{Binding Rate}" Minimum="-5" Maximum="10" SmallChange="1" />
+                    <Slider Width="100" Value="{Binding Rate}" Minimum="-5" Maximum="10" SmallChange="1" />
                     <Label Content="{Binding Rate}"/>
                 </StackPanel>
             </ToolBar>
-            <ToolBar MaxHeight="40">
+            <ToolBar>
                 <Button Command="EditingCommands.MoveToDocumentStart" Style="{StaticResource ToolBarButton}">
-                    <Image Source="toolbargraphics\home.png"/>
+                    <Image Source="toolbargraphics\home.ico"/>
                 </Button>
                 <Button Command="EditingCommands.MoveToDocumentEnd" Style="{StaticResource ToolBarButton}">
-                    <Image Source="toolbargraphics\end.png"/>
+                    <Image Source="toolbargraphics\end.ico"/>
                 </Button>
                 <Button Command="{Binding RemoveEmptyCommand}" Style="{StaticResource ToolBarButton}">
-                    <Image Source="toolbargraphics\rmvempt.png"/>
+                    <Image Source="toolbargraphics\rmvempt.ico"/>
                 </Button>
             </ToolBar>
         </ToolBarTray>
-        <!--
-        <ItemsControl Grid.Row="2" ItemsSource="">
-            <ItemsControl.itemsT .ItemTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>-->
         <TabControl Grid.Row="2" ItemsSource="{Binding Documents}" SelectedItem="{Binding Document}">
             <TabControl.ItemTemplate>
                 <DataTemplate>
+                    <DockPanel >
                     <TextBlock Text="{Binding Path=Name}"/>
+                        <Button Command="{Binding Path=CloseCommand}" Height="16" Width="16" DockPanel.Dock="Right">
+                            <Image Source="cross.ico"/>
+                        </Button>
+                    </DockPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>

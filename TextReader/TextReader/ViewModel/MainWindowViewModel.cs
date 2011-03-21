@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Documents;
 using System.Windows;
 using System.Threading;
+using System.Collections.ObjectModel;
 
 namespace TextReader.ViewModel
 {
@@ -22,12 +23,12 @@ namespace TextReader.ViewModel
             }
         }
 
-
         #region FlowDocumentViewModel
-        private readonly List<FlowDocumentViewModel> _docs;
-        public IEnumerable<FlowDocumentViewModel> Documents
+        //readonly
+        private ObservableCollection<FlowDocumentViewModel> _docs;
+        public ReadOnlyObservableCollection<FlowDocumentViewModel> Documents
         {
-            get { return _docs; }
+            get { return new ReadOnlyObservableCollection<FlowDocumentViewModel>( _docs); }
         }
 
         private FlowDocumentViewModel _doc;
@@ -94,6 +95,10 @@ namespace TextReader.ViewModel
 
             _commandBindings = new CommandBindingCollection();
 
+            CommandBinding NewCmdBinding = new CommandBinding(
+                ApplicationCommands.New, NewCmdExecuted, CanExecuteTrue);
+            this.CommandBindings.Add(NewCmdBinding);
+
             CommandBinding PlayCmdBinding = new CommandBinding(
                 MediaCommands.Play, PlayCmdExecuted, PlayCmdCanExecute);
             this.CommandBindings.Add(PlayCmdBinding);
@@ -108,9 +113,17 @@ namespace TextReader.ViewModel
 
             // Set the first document to the welcome text
             FlowDocument doc = ((FlowDocument)App.Current.Resources["WelcomeDocument"]);
-            _docs = new List<FlowDocumentViewModel>();
-            _docs.Add(new FlowDocumentViewModel(doc));
+
+            _docs = new ObservableCollection<FlowDocumentViewModel>(); 
+            addDocToDocs(doc);
             Document = Documents.First();
+        }
+
+        private void addDocToDocs(FlowDocument doc)
+        {
+            var docvm = new FlowDocumentViewModel(doc);
+            _docs.Add(docvm);
+            docvm.RequestClose = delegate { _docs.Remove(docvm); };
         }
 
         void _reader_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -172,6 +185,12 @@ namespace TextReader.ViewModel
             e.CanExecute = true;
         }
 
+        void NewCmdExecuted(object target, ExecutedRoutedEventArgs e)
+        {
+            FlowDocument doc = new FlowDocument();
+            addDocToDocs(doc);
+
+        }
         void PlayCmdExecuted(object target, ExecutedRoutedEventArgs e)
         {
             _readDoc = _doc;

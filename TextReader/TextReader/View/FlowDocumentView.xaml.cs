@@ -21,6 +21,8 @@ namespace TextReader.View
         void FlowDocumentView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             var fdvm = (DataContext as FlowDocumentViewModel);
+            if (fdvm == null)
+                return;
             rtb.Document = fdvm.Document;
             fdvm.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(fdvm_PropertyChanged);
 

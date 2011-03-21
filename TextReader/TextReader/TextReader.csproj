@@ -157,14 +157,23 @@
     <Resource Include="View\icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="View\toolbargraphics\pause.png" />
-    <Resource Include="View\toolbargraphics\play.png" />
-    <Resource Include="View\toolbargraphics\stop.png" />
+    <Resource Include="View\toolbargraphics\home.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="View\toolbargraphics\end.png" />
-    <Resource Include="View\toolbargraphics\home.png" />
-    <Resource Include="View\toolbargraphics\rmvempt.png" />
+    <Resource Include="View\toolbargraphics\end.ico" />
+    <Resource Include="View\toolbargraphics\pause.ico" />
+    <Resource Include="View\toolbargraphics\play.ico" />
+    <Resource Include="View\toolbargraphics\rmvempt.ico" />
+    <Resource Include="View\toolbargraphics\stop.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\toolbargraphics\new.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\cross.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
