@@ -199,7 +199,8 @@ namespace TextReader.ViewModel
         }
         void PlayCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = _reader.State == ReaderState.NotSpeaking;
+            // Allow start reading only when it's not already reading, or it have been paused.
+            e.CanExecute = _reader.State == ReaderState.NotSpeaking || _reader.State == ReaderState.Paused;
         }
         void PauseCmdExecuted(object target, ExecutedRoutedEventArgs e)
         {
