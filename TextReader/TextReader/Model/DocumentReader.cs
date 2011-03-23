@@ -147,8 +147,8 @@ namespace TextReader
                     if (res.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.ElementEnd)
                     {
                         res = res.GetPositionAtOffset(2, LogicalDirection.Forward);
-                        // if we exit the paragraph we count down by two, becuase of the "\n\r"
-                        if (lastPara != null && res.Paragraph == null)
+                        // if we enter a new paragraph, count up by two
+                        if (lastPara != res.Paragraph)
                             count -= 2;
                     }
                 }
