@@ -148,7 +148,8 @@ namespace TextReader
                     {
                         res = res.GetPositionAtOffset(2, LogicalDirection.Forward);
                         // if we enter a new paragraph, count up by two
-                        if (lastPara != res.Paragraph)
+                        // res might be null if we reach the end of the document
+                        if (res != null && lastPara != res.Paragraph)
                             count -= 2;
                     }
                 }
