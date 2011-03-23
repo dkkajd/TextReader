@@ -95,7 +95,7 @@ namespace TextReader.View
                 bool paragraphChanged = true;
                 
                 // Check if paragraph changed
-                if (lastParagraph != null && lastParagraph.Start.CompareTo(newWord.Start.Paragraph.ContentStart) == 0
+                if (lastParagraph != null && lastParagraph.Start.IsInSameDocument(start) && lastParagraph.Start.CompareTo(newWord.Start.Paragraph.ContentStart) == 0
                        && lastParagraph.End.CompareTo(newWord.End.Paragraph.ContentEnd) == 0)
                 {
                     paragraphChanged = false;
