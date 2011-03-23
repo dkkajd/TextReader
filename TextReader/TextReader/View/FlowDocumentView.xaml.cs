@@ -46,7 +46,9 @@ namespace TextReader.View
             {
                 case "Reading":
                     var fdvm = (DataContext as FlowDocumentViewModel);
-
+                    if (fdvm == null)
+                        return;
+                    
                     if (!fdvm.Reading)
                     {
                         unindicate(true);
@@ -64,6 +66,8 @@ namespace TextReader.View
         void Selection_Changed(object sender, EventArgs e)
         {
             var fdvm = (DataContext as FlowDocumentViewModel);
+            if (fdvm == null)
+                return;
             fdvm.Selection.Select(rtb.Selection.Start, rtb.Selection.End);
         }
 
@@ -74,6 +78,8 @@ namespace TextReader.View
         void ReadWord_Changed(object sender, EventArgs e)
         {
             var fdvm = (DataContext as FlowDocumentViewModel);
+            if (fdvm == null)
+                return;
 
             // Only do anything if it's being read
             if (!fdvm.Reading)

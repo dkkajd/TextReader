@@ -143,9 +143,12 @@ namespace TextReader.ViewModel
             }
             docvm.RequestClose = (s,e) =>
             {
+                // Stop reading if it was reading the closing document
+                if (_readDoc == docvm)
+                    _reader.StopReading();
+                
                 if (_docs.Contains(docvm))
                 {
-                    Document = null;
                     _docs.Remove(docvm);
                 }
             };
