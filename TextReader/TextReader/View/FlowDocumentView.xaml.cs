@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using System.Windows.Input;
 using TextReader.ViewModel;
 
 namespace TextReader.View
@@ -30,6 +31,7 @@ namespace TextReader.View
 
             fdvm.ReadWord.Changed += new EventHandler(ReadWord_Changed);
             rtb.Selection.Changed += new EventHandler(Selection_Changed);
+            Keyboard.Focus(rtb);
         }
 
         void fdvm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -138,6 +140,11 @@ namespace TextReader.View
                     lastParagraph.ApplyPropertyValue(TextElement.BackgroundProperty, lastParaBackground);
                 }
             }
+        }
+
+        private void rtb_Loaded(object sender, RoutedEventArgs e)
+        {
+            Keyboard.Focus(rtb);
         }
     }
 }

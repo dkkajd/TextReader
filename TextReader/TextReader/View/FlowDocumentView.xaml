@@ -5,8 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <RichTextBox Name="rtb"  VerticalScrollBarVisibility="Auto">
+    <Grid FocusManager.IsFocusScope="True">
+        <RichTextBox Name="rtb" VerticalScrollBarVisibility="Auto"
+                     Loaded="rtb_Loaded">
             <RichTextBox.Document>
                 <FlowDocument>
                     <Paragraph>

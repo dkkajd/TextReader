@@ -6,6 +6,7 @@ using System.Windows.Documents;
 using System.Windows;
 using System.Threading;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace TextReader.ViewModel
 {
@@ -35,7 +36,14 @@ namespace TextReader.ViewModel
         public FlowDocumentViewModel Document
         {
             get { return _doc; }
-            set { _doc = value; }
+            set
+            {
+                if (value == null || Documents.Contains(value))
+                {
+                    _doc = value;
+                    OnPropertyChanged("Document");
+                }
+            }
         }
         #endregion
 
@@ -123,7 +131,23 @@ namespace TextReader.ViewModel
         {
             var docvm = new FlowDocumentViewModel(doc);
             _docs.Add(docvm);
-            docvm.RequestClose = delegate { _docs.Remove(docvm); };
+            if (_docs.Count == 1)
+            {
+                Document = docvm;
+                _readDoc = docvm;
+            }
+            docvm.RequestClose = delegate { 
+                if (_docs.Contains(docvm))
+                {
+                    Document = null;
+                    _docs.Remove(docvm);
+                }
+            };
+            if (_readDoc != null && !_readDoc.Reading)
+            {
+                Document = docvm;
+                _readDoc = docvm;
+            }
         }
 
         void _reader_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -180,6 +204,7 @@ namespace TextReader.ViewModel
 
         #region Commands
 
+        [DebuggerStepThrough]
         void CanExecuteTrue(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -197,6 +222,7 @@ namespace TextReader.ViewModel
             _reader.StartReading(_readDoc.Selection.Start);
             updateReadText();
         }
+        [DebuggerStepThrough]
         void PlayCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             // Allow start reading only when it's not already reading, or it have been paused.
@@ -214,6 +240,7 @@ namespace TextReader.ViewModel
                     break;
             }
         }
+        [DebuggerStepThrough]
         void PauseCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = _reader.State == ReaderState.Speaking ||
