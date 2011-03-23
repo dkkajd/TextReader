@@ -24,6 +24,12 @@ namespace TextReader.View
             var fdvm = (DataContext as FlowDocumentViewModel);
             if (fdvm == null)
                 return;
+            // if for somereason the document already have a parent we need to remove that first
+            if (fdvm.Document.Parent != null)
+            {
+                var doc = new FlowDocument();
+                ((RichTextBox)fdvm.Document.Parent).Document = doc;
+            }
             rtb.Document = fdvm.Document;
             fdvm.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(fdvm_PropertyChanged);
 
