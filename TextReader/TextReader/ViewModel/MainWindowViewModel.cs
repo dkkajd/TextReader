@@ -29,7 +29,7 @@ namespace TextReader.ViewModel
         private ObservableCollection<FlowDocumentViewModel> _docs;
         public ReadOnlyObservableCollection<FlowDocumentViewModel> Documents
         {
-            get { return new ReadOnlyObservableCollection<FlowDocumentViewModel>( _docs); }
+            get { return new ReadOnlyObservableCollection<FlowDocumentViewModel>(_docs); }
         }
 
         private FlowDocumentViewModel _doc;
@@ -104,7 +104,12 @@ namespace TextReader.ViewModel
             _commandBindings = new CommandBindingCollection();
 
             CommandBinding NewCmdBinding = new CommandBinding(
-                ApplicationCommands.New, NewCmdExecuted, CanExecuteTrue);
+                ApplicationCommands.New,
+                (t, e) =>
+                {
+                    FlowDocument doc = new FlowDocument();
+                    addDocToDocs(doc);
+                });
             this.CommandBindings.Add(NewCmdBinding);
 
             CommandBinding PlayCmdBinding = new CommandBinding(
@@ -112,18 +117,18 @@ namespace TextReader.ViewModel
             this.CommandBindings.Add(PlayCmdBinding);
 
             CommandBinding PauseCmdBinding = new CommandBinding(
-                MediaCommands.Pause, PauseCmdExecuted, PauseCanExecute);
+                MediaCommands.Pause, PauseCmdExecuted, PauseCmdCanExecute);
             this.CommandBindings.Add(PauseCmdBinding);
 
             CommandBinding StopCmdBinding = new CommandBinding(
-                MediaCommands.Stop, StopCmdExecuted, CanExecuteTrue);
+                MediaCommands.Stop, (t, e) => _reader.StopReading());
             this.CommandBindings.Add(StopCmdBinding);
 
             // Set the first document to the welcome text
-            FlowDocument doc = ((FlowDocument)App.Current.Resources["WelcomeDocument"]);
+            FlowDocument welcomeDoc = ((FlowDocument)App.Current.Resources["WelcomeDocument"]);
 
-            _docs = new ObservableCollection<FlowDocumentViewModel>(); 
-            addDocToDocs(doc);
+            _docs = new ObservableCollection<FlowDocumentViewModel>();
+            addDocToDocs(welcomeDoc);
             Document = Documents.First();
         }
 
@@ -136,7 +141,8 @@ namespace TextReader.ViewModel
                 Document = docvm;
                 _readDoc = docvm;
             }
-            docvm.RequestClose = delegate { 
+            docvm.RequestClose = (s,e) =>
+            {
                 if (_docs.Contains(docvm))
                 {
                     Document = null;
@@ -204,18 +210,6 @@ namespace TextReader.ViewModel
 
         #region Commands
 
-        [DebuggerStepThrough]
-        void CanExecuteTrue(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = true;
-        }
-
-        void NewCmdExecuted(object target, ExecutedRoutedEventArgs e)
-        {
-            FlowDocument doc = new FlowDocument();
-            addDocToDocs(doc);
-
-        }
         void PlayCmdExecuted(object target, ExecutedRoutedEventArgs e)
         {
             _readDoc = _doc;
@@ -241,14 +235,10 @@ namespace TextReader.ViewModel
             }
         }
         [DebuggerStepThrough]
-        void PauseCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        void PauseCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = _reader.State == ReaderState.Speaking ||
                 _reader.State == ReaderState.Paused;
-        }
-        void StopCmdExecuted(object target, ExecutedRoutedEventArgs e)
-        {
-            _reader.StopReading();
         }
 
 
@@ -259,7 +249,7 @@ namespace TextReader.ViewModel
             {
                 if (_removeEmptyCommand == null)
                 {
-                    _removeEmptyCommand = new RelayCommand(RemoveEmptyCmdExecuted,RemoveEmptyCmdCanExecute);
+                    _removeEmptyCommand = new RelayCommand(RemoveEmptyCmdExecuted, RemoveEmptyCmdCanExecute);
                 }
                 return _removeEmptyCommand;
             }
