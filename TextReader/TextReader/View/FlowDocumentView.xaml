@@ -15,6 +15,12 @@
                     </Paragraph>
                 </FlowDocument>
             </RichTextBox.Document>
+            <RichTextBox.Resources>
+                <Style TargetType="FlowDocument">
+                    <Setter Property="FrameworkContentElement.OverridesDefaultStyle" Value="True" />
+                    <Setter Property="FlowDocument.LineHeight" Value="5" />
+                </Style>
+            </RichTextBox.Resources>
         </RichTextBox>
     </Grid>
 </UserControl>

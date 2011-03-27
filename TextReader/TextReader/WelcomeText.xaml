@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <FlowDocument x:Key="WelcomeDocument" LineHeight="5">
+    <FlowDocument x:Key="WelcomeDocument">
         <Paragraph>
             Thank you for using text reader.
         </Paragraph>
