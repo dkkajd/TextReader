@@ -50,7 +50,7 @@
                 <StackPanel Orientation="Horizontal" Height="25">
                     <ComboBox
                           ItemsSource="{Binding Voices}" SelectedValue="{Binding Voice}" 
-                          Width="120" IsEditable="True">
+                          Width="120">
                     </ComboBox>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Height="25">
@@ -67,6 +67,9 @@
                 </Button>
                 <Button Command="{Binding RemoveEmptyCommand}" Style="{StaticResource ToolBarButton}">
                     <Image Source="toolbargraphics\rmvempt.ico"/>
+                </Button>
+                <Button Command="{Binding UniteLinesCommand}" Style="{StaticResource ToolBarButton}">
+                    <Image Source="toolbargraphics\uniteln.ico"/>
                 </Button>
             </ToolBar>
         </ToolBarTray>

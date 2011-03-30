@@ -284,6 +284,70 @@ namespace TextReader.ViewModel
         {
             return Document != null;
         }
+
+        private ICommand _uniteLinesCommand;
+        public ICommand UniteLinesCommand
+        {
+            get
+            {
+                if (_uniteLinesCommand == null)
+                {
+                    _uniteLinesCommand = new RelayCommand(UniteLinesCmdExecuted, UniteLinesCmdCanExecute);
+                }
+                return _uniteLinesCommand;
+            }
+        }
+
+        void UniteLinesCmdExecuted(object target)
+        {
+            var blocksToRemove = new List<Block>();
+            Paragraph lastPara = null;
+            var block = Document.Document.Blocks.FirstBlock;
+
+            while (block != null)
+            {
+                var para = block as Paragraph;
+                if (para != null)
+                {
+                    if (para.Inlines.Count == 1)
+                    {
+                        var run = para.Inlines.FirstInline as Run;
+                        if (run != null && run.Text.Trim() == "")
+                        {
+                            lastPara = para;
+                            block = block.NextBlock;
+                            continue;
+                        }
+                    }
+                    if (para.Inlines.Count >= 1)
+                    {
+                        if (lastPara == null)
+                        {
+                            lastPara = para;
+                        }
+                        else
+                        {
+                            para.ContentStart.GetInsertionPosition(LogicalDirection.Forward).InsertTextInRun(" ");
+                            var inlines = para.Inlines.Take(para.Inlines.Count);
+
+                            lastPara.Inlines.AddRange(inlines);
+                            blocksToRemove.Add(para);
+                        }
+                    }
+                }
+                block=block.NextBlock;
+            }
+
+
+            foreach (var item in blocksToRemove)
+            {
+                Document.Document.Blocks.Remove(item);
+            }
+        }
+        bool UniteLinesCmdCanExecute(object sender)
+        {
+            return Document != null;
+        }
         #endregion
     }
 }
