@@ -280,6 +280,7 @@ namespace TextReader.ViewModel
                 Document.Document.Blocks.Remove(block);
             }
         }
+        [DebuggerStepThrough]
         bool RemoveEmptyCmdCanExecute(object sender)
         {
             return Document != null;
@@ -344,6 +345,7 @@ namespace TextReader.ViewModel
                 Document.Document.Blocks.Remove(item);
             }
         }
+        [DebuggerStepThrough]
         bool UniteLinesCmdCanExecute(object sender)
         {
             return Document != null;

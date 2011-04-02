@@ -5,6 +5,8 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Input;
 using TextReader.ViewModel;
+using System.Windows.Threading;
+using System.ComponentModel;
 
 namespace TextReader.View
 {
@@ -21,6 +23,13 @@ namespace TextReader.View
 
         void FlowDocumentView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
+            // Save the offset on the old flowdocument
+            var oldFdvm = e.OldValue as FlowDocumentViewModel;
+            if (oldFdvm != null)
+            {
+                oldFdvm.ScrollOffset = rtb.VerticalOffset;
+            }
+
             var fdvm = (DataContext as FlowDocumentViewModel);
             if (fdvm == null)
                 return;
@@ -31,12 +40,15 @@ namespace TextReader.View
                 ((RichTextBox)fdvm.Document.Parent).Document = doc;
             }
             rtb.Document = fdvm.Document;
-            fdvm.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(fdvm_PropertyChanged);
 
             rtb.Selection.Select(fdvm.Selection.Start, fdvm.Selection.End);
 
-            fdvm.ReadWord.Changed += new EventHandler(ReadWord_Changed);
+            // sets the vertical after it has scrolled for the selection
+            Dispatcher.BeginInvoke((Action)(() => { rtb.ScrollToVerticalOffset(fdvm.ScrollOffset); }), DispatcherPriority.Input, null);
+
             rtb.Selection.Changed += new EventHandler(Selection_Changed);
+            fdvm.ReadWord.Changed += new EventHandler(ReadWord_Changed);
+            fdvm.PropertyChanged += new PropertyChangedEventHandler(fdvm_PropertyChanged);
             Keyboard.Focus(rtb);
         }
 

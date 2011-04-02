@@ -19,8 +19,30 @@ namespace TextReader.ViewModel
         public String Name
         {
             get { return _name; }
-            set { _name = value; OnPropertyChanged("Name"); }
+            set
+            {
+                if (value != _name)
+                {
+                    _name = value; 
+                    OnPropertyChanged("Name");
+                } 
+            }
         }
+
+        private double _scrollOffset;
+
+        public double ScrollOffset
+        {
+            get { return _scrollOffset; }
+            set {
+                if (value != _scrollOffset)
+                {
+                    _scrollOffset = value; 
+                    OnPropertyChanged("ScrollOffset");
+                }
+            }
+        }
+
 
 
         private bool _reading;
@@ -59,6 +81,7 @@ namespace TextReader.ViewModel
         public FlowDocumentViewModel(FlowDocument doc)
         {
             _doc = doc;
+            _scrollOffset = 0;
             _name = GenerateNewName();
             _selection = new TextRange(_doc.ContentStart, _doc.ContentStart);
             _readWord = new TextRange(_doc.ContentStart, _doc.ContentStart);
