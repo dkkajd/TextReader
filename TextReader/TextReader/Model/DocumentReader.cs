@@ -33,7 +33,7 @@ namespace TextReader
         private bool stopReading;
         /// <summary>
         /// Used with countToLastPoint in SpeakProgress to save where it came to, so it doesn't have to recalculate the
-        /// position with GetPositionAtTextOffset.
+        /// position with GetPositionAtTextOffset. Also used by change voice/rate to know where to continue to speak from.
         /// </summary>
         private TextPointer lastPoint;
         /// <summary>
@@ -177,26 +177,53 @@ namespace TextReader
 
            return _synth.Voice.Name;
         }
+
+        /// <summary>
+        /// Sets the voice that should be used to speak.
+        /// </summary>
+        /// <param name="voice">One of the strings from GetVoices.</param>
+        /// <returns>
+        /// The voice that is now speaking, this might not be the
+        /// same as the selected one, if an error occoured.
+        /// </returns>
         public string SetVoice(String voice)
         {
             try
             {
-                _synth.SpeakAsyncCancelAll();
+                StopReading();
                 _synth.SelectVoice(voice);
 
                 OnPropertyChanged("Voice");
             }
             catch (Exception)
             {
-            
+
+            }
+            finally
+            {
+                StartReading(lastPoint);
             }
             return _synth.Voice.Name;
         }
 
-        public void SetRate(int value)
+        /// <summary>
+        /// Sets the rate at which it speaks.
+        /// </summary>
+        /// <param name="value">The rate at which it speaks, must be between in [-10;10].</param>
+        public int SetRate(int value)
         {
-            _synth.Rate = value;
-            OnPropertyChanged("Rate");
+            try
+            {
+                StopReading();
+                _synth.Rate = value;
+
+                OnPropertyChanged("Rate");
+            }
+            finally
+            {
+                StartReading(lastPoint);
+            }
+            return _synth.Rate;
         }
         public int GetRate()
         {
