@@ -27,7 +27,8 @@ namespace TextReader
         /// </summary>
         private TextPointer breakPoint;
         /// <summary>
-        /// Set when the user asks to stop reading, so it doesn't start rading from breakPoint again
+        /// Set when the user asks to stop reading, so it doesn't start rading from breakPoint again.
+        /// And set to false when the text first starts reading.
         /// </summary>
         private bool stopReading;
         /// <summary>
@@ -53,6 +54,7 @@ namespace TextReader
 
         void _synth_SpeakStarted(object sender, SpeakStartedEventArgs e)
         {
+            stopReading = false;
             State = ReaderState.Speaking;
         }
 
@@ -203,7 +205,7 @@ namespace TextReader
 
         public void StartReading(TextPointer startingPoint)
         {
-            _synth.SpeakAsyncCancelAll();
+            StopReading();
 
             startedReading = startingPoint;
             lastPoint = startedReading;
@@ -213,7 +215,6 @@ namespace TextReader
                 breakPoint = startedReading.DocumentEnd;
             if (breakPoint.Paragraph != null)
                 breakPoint = breakPoint.Paragraph.ContentEnd;
-            stopReading = false;
 
             _synth.SpeakAsync(richTextBoxToPromt(startingPoint,breakPoint));
             ReadText = new TextRange(startingPoint, startingPoint);
