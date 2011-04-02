@@ -70,7 +70,10 @@ namespace TextReader.ViewModel
                         OnPropertyChanged("Voice");
                     });
                 }
-                OnPropertyChanged("Voice");
+                else
+                {
+                    OnPropertyChanged("Voice");
+                }
             }
         }
 
@@ -89,7 +92,32 @@ namespace TextReader.ViewModel
                         OnPropertyChanged("Rate");
                     });
                 }
-                OnPropertyChanged("Rate");
+                else
+                {
+                    OnPropertyChanged("Rate");
+                }
+            }
+        }
+
+        public int Volume
+        {
+            get { return _reader.GetVolume(); }
+            set
+            {
+                var temp = Volume;
+                _reader.SetVolume(value);
+                if (temp == Volume)
+                {
+                    // We need to tell it that it never changed in a new thread or combobox wont update
+                    Application.Current.Dispatcher.BeginInvoke((ThreadStart)delegate
+                    {
+                        OnPropertyChanged("Volume");
+                    });
+                }
+                else
+                {
+                    OnPropertyChanged("Volume");
+                }
             }
         }
         #endregion
@@ -170,6 +198,10 @@ namespace TextReader.ViewModel
                 case "Rate":
                     // Relay that the property have changed
                     OnPropertyChanged("Rate");
+                    break;
+                case "Volume":
+                    // Relay that the property have changed
+                    OnPropertyChanged("Volume");
                     break;
                 case "ReadText":
                     updateReadText();

@@ -27,6 +27,28 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_Exit" Command="{Binding CloseCommand}" />
             </MenuItem>
+            <MenuItem Header="_Playback">
+                <MenuItem Header="_Rate">
+                    <StackPanel Orientation="Horizontal" Height="25">
+                        <Slider Width="100" Value="{Binding Rate}" Minimum="-10" Maximum="10" SmallChange="1" />
+                        <Label Content="{Binding Rate}"/>
+                    </StackPanel>
+                </MenuItem>
+                <MenuItem Header="_Volume">
+                    <StackPanel Orientation="Horizontal" Height="25">
+                        <Slider Width="100" Value="{Binding Volume}" Minimum="0" Maximum="100" SmallChange="1" />
+                        <Label Content="{Binding Volume}"/>
+                    </StackPanel>
+                </MenuItem>
+                <MenuItem Header="_Voice">
+                    <StackPanel Orientation="Horizontal" Height="25">
+                        <ComboBox
+                          ItemsSource="{Binding Voices}" SelectedValue="{Binding Voice}" 
+                          Width="120">
+                        </ComboBox>
+                    </StackPanel>
+                </MenuItem>
+            </MenuItem>
         </Menu>
 
         <ToolBarTray Grid.Row="1">
@@ -45,18 +67,6 @@
                 <Button Command="MediaCommands.Stop" Style="{StaticResource ToolBarButton}">
                     <Image Source="toolbargraphics\stop.ico"/>
                 </Button>
-            </ToolBar>
-            <ToolBar>
-                <StackPanel Orientation="Horizontal" Height="25">
-                    <ComboBox
-                          ItemsSource="{Binding Voices}" SelectedValue="{Binding Voice}" 
-                          Width="120">
-                    </ComboBox>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Height="25">
-                    <Slider Width="100" Value="{Binding Rate}" Minimum="-5" Maximum="10" SmallChange="1" />
-                    <Label Content="{Binding Rate}"/>
-                </StackPanel>
             </ToolBar>
             <ToolBar>
                 <Button Command="EditingCommands.MoveToDocumentStart" Style="{StaticResource ToolBarButton}">

@@ -172,6 +172,10 @@ namespace TextReader
             }
         }
 
+        /// <summary>
+        /// The voice that is now speaking.
+        /// </summary>
+        /// <returns>The voice that is now speaking. This should be one of the strings from GetVoices.</returns>
         public string GetVoice()
         {
 
@@ -195,10 +199,6 @@ namespace TextReader
 
                 OnPropertyChanged("Voice");
             }
-            catch (Exception)
-            {
-
-            }
             finally
             {
                 StartReading(lastPoint);
@@ -207,15 +207,62 @@ namespace TextReader
         }
 
         /// <summary>
+        /// Gets the volume at which it speaks.
+        /// </summary>
+        /// <returns>The volume at which it speaks, a number in [0;100].</returns>
+        public int GetVolume()
+        {
+            return _synth.Volume;
+        }
+
+        /// <summary>
+        /// Sets the volume that should be used to speak.
+        /// </summary>
+        /// <param name="volume">The volume at which it speaks, a number in [0;100].</param>
+        /// <returns>
+        /// The volume as it is now, this might not be the
+        /// same as the selected one, if an error occoured.
+        /// </returns>
+        public int SetVolume(int volume)
+        {
+            try
+            {
+                _synth.Volume = 0;
+                StopReading();
+                _synth.Volume = volume;
+
+                OnPropertyChanged("Volume");
+            }
+            finally
+            {
+                StartReading(lastPoint);
+            }
+            return _synth.Volume;
+        }
+
+        /// <summary>
+        /// Gets the rate at which it speaks.
+        /// </summary>
+        /// <returns>The rate at which it speaks, a number in [-10;10].</returns>
+        public int GetRate()
+        {
+            return _synth.Rate;
+        }
+
+        /// <summary>
         /// Sets the rate at which it speaks.
         /// </summary>
-        /// <param name="value">The rate at which it speaks, must be between in [-10;10].</param>
-        public int SetRate(int value)
+        /// <param name="rate">The rate at which it speaks, must be between in [-10;10].</param>
+        /// <returns>
+        /// The rate as it is now, this might not be the
+        /// same as the selected one, if an error occoured.
+        /// </returns>
+        public int SetRate(int rate)
         {
             try
             {
                 StopReading();
-                _synth.Rate = value;
+                _synth.Rate = rate;
 
                 OnPropertyChanged("Rate");
             }
@@ -225,13 +272,11 @@ namespace TextReader
             }
             return _synth.Rate;
         }
-        public int GetRate()
-        {
-            return _synth.Rate;
-        }
 
         public void StartReading(TextPointer startingPoint)
         {
+            if (startingPoint == null)
+                return;
             StopReading();
 
             startedReading = startingPoint;
