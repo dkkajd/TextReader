@@ -7,7 +7,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <RichTextBox Name="rtb" VerticalScrollBarVisibility="Auto"
-                     Loaded="rtb_Loaded">
+                     Loaded="rtb_Loaded" IsReadOnly="{Binding Path=Reading}">
             <RichTextBox.Document>
                 <FlowDocument>
                     <Paragraph>

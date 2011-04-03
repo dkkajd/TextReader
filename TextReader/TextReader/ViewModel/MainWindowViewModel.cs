@@ -316,7 +316,7 @@ namespace TextReader.ViewModel
         [DebuggerStepThrough]
         bool RemoveEmptyCmdCanExecute(object sender)
         {
-            return Document != null;
+            return Document != null && !Document.Reading;
         }
 
         private ICommand _uniteLinesCommand;
@@ -381,7 +381,7 @@ namespace TextReader.ViewModel
         [DebuggerStepThrough]
         bool UniteLinesCmdCanExecute(object sender)
         {
-            return Document != null;
+            return Document != null && !Document.Reading;
         }
         #endregion
     }
