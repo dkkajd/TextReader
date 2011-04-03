@@ -213,6 +213,7 @@ namespace TextReader.ViewModel
                             break;
                         case ReaderState.Speaking:
                             _readDoc.Reading = true;
+                            CommandManager.InvalidateRequerySuggested();
                             break;
                         case ReaderState.Paused:
                             break;
