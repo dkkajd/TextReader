@@ -46,6 +46,7 @@ namespace TextReader
         public DocumentReader()
         {
             State = ReaderState.NotSpeaking;
+            stopReading = true;
             _synth = new SpeechSynthesizer();
             _synth.SpeakProgress += new EventHandler<SpeakProgressEventArgs>(_synth_SpeakProgress);
             _synth.SpeakCompleted += new EventHandler<SpeakCompletedEventArgs>(_synth_SpeakCompleted);
@@ -173,6 +174,50 @@ namespace TextReader
         }
 
         /// <summary>
+        /// If it is reading stops reading, calls setter, and start reading again.
+        /// If it isn't reading just runs setter inside try.
+        /// Finaly it calls OnPropertyChanged if the value from getter doesn't match,
+        /// and returns the new value from getter.
+        /// </summary>
+        /// <typeparam name="t">Type of the value to set.</typeparam>
+        /// <param name="getter">A function that returns the value.</param>
+        /// <param name="setter">A function that sets the value.</param>
+        /// <param name="matcher">A function that can check if the value has changed.</param>
+        /// <param name="property">The name of the property that is changed.</param>
+        /// <returns>The from getter after setter have been called.</returns>
+        private t setProperty<t>(Func<t> getter, Action setter, Func<t,t,bool> matcher,String property)
+        {
+            var oldValue = getter.Invoke();
+            if (stopReading)
+            {
+                try
+                {
+                    setter.Invoke();
+                }
+                catch { }
+            }
+            else
+            {
+                try
+                {
+                    StopReading();
+
+                    setter.Invoke();
+                }
+                finally
+                {
+                    StartReading(lastPoint);
+                }
+            }
+            var newValue = getter.Invoke();
+            if (!matcher.Invoke(oldValue,newValue))
+            {
+                OnPropertyChanged(property);
+            }
+            return newValue;
+        }
+
+        /// <summary>
         /// The voice that is now speaking.
         /// </summary>
         /// <returns>The voice that is now speaking. This should be one of the strings from GetVoices.</returns>
@@ -192,18 +237,7 @@ namespace TextReader
         /// </returns>
         public string SetVoice(String voice)
         {
-            try
-            {
-                StopReading();
-                _synth.SelectVoice(voice);
-
-                OnPropertyChanged("Voice");
-            }
-            finally
-            {
-                StartReading(lastPoint);
-            }
-            return _synth.Voice.Name;
+            return setProperty(GetVoice, () => { _synth.SelectVoice(voice); }, (a, b) => a == b, "Voice");
         }
 
         /// <summary>
@@ -225,19 +259,7 @@ namespace TextReader
         /// </returns>
         public int SetVolume(int volume)
         {
-            try
-            {
-                _synth.Volume = 0;
-                StopReading();
-                _synth.Volume = volume;
-
-                OnPropertyChanged("Volume");
-            }
-            finally
-            {
-                StartReading(lastPoint);
-            }
-            return _synth.Volume;
+            return setProperty(GetVolume, () => { _synth.Volume = volume; }, (a, b) => a == b, "Volume");
         }
 
         /// <summary>
@@ -259,18 +281,7 @@ namespace TextReader
         /// </returns>
         public int SetRate(int rate)
         {
-            try
-            {
-                StopReading();
-                _synth.Rate = rate;
-
-                OnPropertyChanged("Rate");
-            }
-            finally
-            {
-                StartReading(lastPoint);
-            }
-            return _synth.Rate;
+            return setProperty(GetRate, () => { _synth.Rate = rate; }, (a, b) => a == b, "Rate");
         }
 
         public void StartReading(TextPointer startingPoint)
