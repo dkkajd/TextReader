@@ -80,8 +80,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Model\DocumentReader.cs" />
+    <Compile Include="Model\ReadDocument.cs" />
     <Compile Include="ViewModel\AttachedProperties.cs" />
-    <Compile Include="ViewModel\FlowDocumentViewModel.cs" />
+    <Compile Include="ViewModel\ReadDocumentViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />

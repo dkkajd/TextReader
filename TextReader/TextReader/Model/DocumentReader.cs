@@ -5,7 +5,7 @@ using System.Speech.Synthesis;
 using System.Windows.Documents;
 using System.ComponentModel;
 
-namespace TextReader
+namespace TextReader.Model
 {
     /// <summary>
     /// The class the controls all the reading from a TextPointer, and forward.

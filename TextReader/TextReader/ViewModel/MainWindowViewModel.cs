@@ -7,13 +7,14 @@ using System.Windows;
 using System.Threading;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using TextReader.Model;
 
 namespace TextReader.ViewModel
 {
     class MainWindowViewModel : WorkspaceViewModel
     {
         private DocumentReader _reader;
-        private FlowDocumentViewModel _readDoc;
+        private ReadDocumentViewModel _readDoc;
 
         private readonly CommandBindingCollection _commandBindings;
         public CommandBindingCollection CommandBindings
@@ -25,15 +26,14 @@ namespace TextReader.ViewModel
         }
 
         #region FlowDocumentViewModel
-        //readonly
-        private ObservableCollection<FlowDocumentViewModel> _docs;
-        public ReadOnlyObservableCollection<FlowDocumentViewModel> Documents
+        private ObservableCollection<ReadDocumentViewModel> _docs;
+        public ReadOnlyObservableCollection<ReadDocumentViewModel> Documents
         {
-            get { return new ReadOnlyObservableCollection<FlowDocumentViewModel>(_docs); }
+            get { return new ReadOnlyObservableCollection<ReadDocumentViewModel>(_docs); }
         }
 
-        private FlowDocumentViewModel _doc;
-        public FlowDocumentViewModel Document
+        private ReadDocumentViewModel _doc;
+        public ReadDocumentViewModel Document
         {
             get { return _doc; }
             set
@@ -155,14 +155,14 @@ namespace TextReader.ViewModel
             // Set the first document to the welcome text
             FlowDocument welcomeDoc = ((FlowDocument)App.Current.Resources["WelcomeDocument"]);
 
-            _docs = new ObservableCollection<FlowDocumentViewModel>();
+            _docs = new ObservableCollection<ReadDocumentViewModel>();
             addDocToDocs(welcomeDoc);
             Document = Documents.First();
         }
 
         private void addDocToDocs(FlowDocument doc)
         {
-            var docvm = new FlowDocumentViewModel(doc);
+            var docvm = new ReadDocumentViewModel(new ReadDocument( doc));
             _docs.Add(docvm);
             if (_docs.Count == 1)
             {
@@ -294,24 +294,7 @@ namespace TextReader.ViewModel
 
         void RemoveEmptyCmdExecuted(object target)
         {
-            var blocksToRemove = new List<Block>();
-            foreach (var block in Document.Document.Blocks)
-            {
-                var para = block as Paragraph;
-                if (para != null && para.Inlines.Count == 1)
-                {
-                    var run = para.Inlines.FirstInline as Run;
-                    if (run != null && run.Text == "")
-                    {
-                        blocksToRemove.Add(block);
-                    }
-                }
-            }
-
-            foreach (var block in blocksToRemove)
-            {
-                Document.Document.Blocks.Remove(block);
-            }
+            Document.RemoveEmptyLines();
         }
         [DebuggerStepThrough]
         bool RemoveEmptyCmdCanExecute(object sender)
@@ -334,49 +317,7 @@ namespace TextReader.ViewModel
 
         void UniteLinesCmdExecuted(object target)
         {
-            var blocksToRemove = new List<Block>();
-            Paragraph lastPara = null;
-            var block = Document.Document.Blocks.FirstBlock;
-
-            while (block != null)
-            {
-                var para = block as Paragraph;
-                if (para != null)
-                {
-                    if (para.Inlines.Count == 1)
-                    {
-                        var run = para.Inlines.FirstInline as Run;
-                        if (run != null && run.Text.Trim() == "")
-                        {
-                            lastPara = para;
-                            block = block.NextBlock;
-                            continue;
-                        }
-                    }
-                    if (para.Inlines.Count >= 1)
-                    {
-                        if (lastPara == null)
-                        {
-                            lastPara = para;
-                        }
-                        else
-                        {
-                            para.ContentStart.GetInsertionPosition(LogicalDirection.Forward).InsertTextInRun(" ");
-                            var inlines = para.Inlines.Take(para.Inlines.Count);
-
-                            lastPara.Inlines.AddRange(inlines);
-                            blocksToRemove.Add(para);
-                        }
-                    }
-                }
-                block=block.NextBlock;
-            }
-
-
-            foreach (var item in blocksToRemove)
-            {
-                Document.Document.Blocks.Remove(item);
-            }
+            Document.UniteLines();
         }
         [DebuggerStepThrough]
         bool UniteLinesCmdCanExecute(object sender)

@@ -24,13 +24,13 @@ namespace TextReader.View
         void FlowDocumentView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             // Save the offset on the old flowdocument
-            var oldFdvm = e.OldValue as FlowDocumentViewModel;
+            var oldFdvm = e.OldValue as ReadDocumentViewModel;
             if (oldFdvm != null)
             {
                 oldFdvm.ScrollOffset = rtb.VerticalOffset;
             }
 
-            var fdvm = (DataContext as FlowDocumentViewModel);
+            var fdvm = (DataContext as ReadDocumentViewModel);
             if (fdvm == null)
                 return;
             // if for somereason the document already have a parent we need to remove that first
@@ -57,7 +57,7 @@ namespace TextReader.View
             switch (e.PropertyName)
             {
                 case "Reading":
-                    var fdvm = (DataContext as FlowDocumentViewModel);
+                    var fdvm = (DataContext as ReadDocumentViewModel);
                     if (fdvm == null)
                         return;
                     
@@ -77,7 +77,7 @@ namespace TextReader.View
 
         void Selection_Changed(object sender, EventArgs e)
         {
-            var fdvm = (DataContext as FlowDocumentViewModel);
+            var fdvm = (DataContext as ReadDocumentViewModel);
             if (fdvm == null)
                 return;
             fdvm.Selection.Select(rtb.Selection.Start, rtb.Selection.End);
@@ -89,7 +89,7 @@ namespace TextReader.View
         object lastParaBackground;
         void ReadWord_Changed(object sender, EventArgs e)
         {
-            var fdvm = (DataContext as FlowDocumentViewModel);
+            var fdvm = (DataContext as ReadDocumentViewModel);
             if (fdvm == null)
                 return;
 
