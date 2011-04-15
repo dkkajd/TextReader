@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-using System.Windows.Documents;
 using System.Windows;
 using System.Threading;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using TextReader.Model;
+using System.Collections.Specialized;
 
 namespace TextReader.ViewModel
 {
@@ -15,6 +15,7 @@ namespace TextReader.ViewModel
     {
         private DocumentReader _reader;
         private ReadDocumentViewModel _readDoc;
+        private ReadDocumentManager _docsMan;
 
         private readonly CommandBindingCollection _commandBindings;
         public CommandBindingCollection CommandBindings
@@ -26,10 +27,10 @@ namespace TextReader.ViewModel
         }
 
         #region FlowDocumentViewModel
-        private ObservableCollection<ReadDocumentViewModel> _docs;
+        private ObservableCollection<ReadDocumentViewModel> _rdvms;
         public ReadOnlyObservableCollection<ReadDocumentViewModel> Documents
         {
-            get { return new ReadOnlyObservableCollection<ReadDocumentViewModel>(_docs); }
+            get { return new ReadOnlyObservableCollection<ReadDocumentViewModel>(_rdvms); }
         }
 
         private ReadDocumentViewModel _doc;
@@ -122,7 +123,7 @@ namespace TextReader.ViewModel
         }
         #endregion
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(ReadDocumentManager docsMan)
         {
 
             // Add commandbindings
@@ -132,12 +133,7 @@ namespace TextReader.ViewModel
             _commandBindings = new CommandBindingCollection();
 
             CommandBinding NewCmdBinding = new CommandBinding(
-                ApplicationCommands.New,
-                (t, e) =>
-                {
-                    FlowDocument doc = new FlowDocument();
-                    addDocToDocs(doc);
-                });
+                ApplicationCommands.New, (t, e) => _docsMan.Add());
             this.CommandBindings.Add(NewCmdBinding);
 
             CommandBinding PlayCmdBinding = new CommandBinding(
@@ -152,39 +148,83 @@ namespace TextReader.ViewModel
                 MediaCommands.Stop, (t, e) => _reader.StopReading());
             this.CommandBindings.Add(StopCmdBinding);
 
-            // Set the first document to the welcome text
-            FlowDocument welcomeDoc = ((FlowDocument)App.Current.Resources["WelcomeDocument"]);
 
-            _docs = new ObservableCollection<ReadDocumentViewModel>();
-            addDocToDocs(welcomeDoc);
-            Document = Documents.First();
+            _docsMan = docsMan;
+            _rdvms = new ObservableCollection<ReadDocumentViewModel>();
+            
+            //The easiest way to republate the viewmodel is to call the delegate that manages the changes
+            MainWindowViewModel_CollectionChanged(_docsMan.Documents, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+
+            // To keep our ViewModelCollection up to date we need to listen for changes
+            ((INotifyCollectionChanged)(_docsMan.Documents)).CollectionChanged += new NotifyCollectionChangedEventHandler(MainWindowViewModel_CollectionChanged);
+
+            // Select the first document if any.
+            Document = Documents.FirstOrDefault();
         }
 
-        private void addDocToDocs(FlowDocument doc)
+        void MainWindowViewModel_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            var docvm = new ReadDocumentViewModel(new ReadDocument( doc));
-            _docs.Add(docvm);
-            if (_docs.Count == 1)
+            switch (e.Action)
             {
-                Document = docvm;
-                _readDoc = docvm;
+                case NotifyCollectionChangedAction.Add:
+                    foreach (var item in e.NewItems)
+                    {
+                        addDocToRDVMs((ReadDocument)item);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    // Remove the viewmodel that has n underlying object that is removed.
+                    var itemsToRemove = from rd in _rdvms where (e.OldItems.Contains(rd.GetUnderlyingObject())) select rd;
+                    foreach (var item in itemsToRemove.ToList())
+	                {
+                        tryRemoveRDVM(item); 
+	                }
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                case NotifyCollectionChangedAction.Replace:
+                    throw new NotImplementedException();
+                case NotifyCollectionChangedAction.Reset:
+                    _rdvms.Clear();
+                    foreach (var item in ((ReadOnlyCollection<ReadDocument>)sender))
+                    {
+                        addDocToRDVMs(item);
+                    }
+                    break;
+                default:
+                    break;
             }
-            docvm.RequestClose = (s,e) =>
+        }
+
+        /// <summary>
+        /// Helper function that tries to remove a ReadDocumentViewModel.
+        /// </summary>
+        /// <param name="rdvm">The ReadDocumentViewModel</param>
+        private void tryRemoveRDVM(ReadDocumentViewModel rdvm)
+        {
+            if (rdvm == null)
+                return;
+
+            // Stop reading if it was reading the closing document
+            if (_readDoc == rdvm)
+                _reader.StopReading();
+
+            // Remove the viewmodel if it exists
+            if (_rdvms.Contains(rdvm))
             {
-                // Stop reading if it was reading the closing document
-                if (_readDoc == docvm)
-                    _reader.StopReading();
-                
-                if (_docs.Contains(docvm))
-                {
-                    _docs.Remove(docvm);
-                }
-            };
-            if (_readDoc != null && !_readDoc.Reading)
-            {
-                Document = docvm;
-                _readDoc = docvm;
+                _rdvms.Remove(rdvm);
             }
+        }
+
+        private void addDocToRDVMs(ReadDocument doc)
+        {
+            var docvm = new ReadDocumentViewModel(doc);
+            _rdvms.Add(docvm);
+
+            // When remove is requested remove the document from the manager, whih will inturn remove the docvm
+            docvm.RequestClose = (s, e) => { _docsMan.Remove(doc); };
+            
+            //set the new document as selected
+            Document = docvm;
         }
 
         void _reader_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

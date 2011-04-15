@@ -8,10 +8,21 @@ using System.Windows.Controls.Primitives;
 
 namespace TextReader.Model
 {
-    class ReadDocument : INotifyPropertyChanged
+    public class ReadDocument : INotifyPropertyChanged
     {
         
         private readonly FlowDocument _doc;
+
+        public ReadDocument(FlowDocument doc)
+        {
+            if (doc == null)
+                throw new ArgumentNullException("doc");
+            _doc = doc;
+            _scrollOffset = 0;
+            _name = GenerateNewName();
+            _selection = new TextRange(_doc.ContentStart, _doc.ContentStart);
+        }
+
         public FlowDocument Document
         {
             get
@@ -75,14 +86,6 @@ namespace TextReader.Model
         {
             nameCount++; // Means we start at 1
             return "Name " + nameCount.ToString();
-        }
-
-        public ReadDocument(FlowDocument doc)
-        {
-            _doc = doc;
-            _scrollOffset = 0;
-            _name = GenerateNewName();
-            _selection = new TextRange(_doc.ContentStart, _doc.ContentStart);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

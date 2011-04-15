@@ -125,5 +125,10 @@ namespace TextReader.ViewModel
             _readWord = new TextRange(_doc.Document.ContentStart, _doc.Document.ContentStart);
             _reading = false;
         }
+
+        internal ReadDocument GetUnderlyingObject()
+        {
+            return _doc;
+        }
     }
 }

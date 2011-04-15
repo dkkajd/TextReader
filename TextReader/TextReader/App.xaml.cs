@@ -1,6 +1,9 @@
 ﻿using System.Windows;
 using TextReader.ViewModel;
 using TextReader.View;
+using TextReader.Model;
+using System.Collections.Generic;
+using System.Windows.Documents;
 
 namespace TextReader
 {
@@ -15,8 +18,12 @@ namespace TextReader
 
             var window = new MainWindow();
 
+            var welcomeText = new ReadDocument((FlowDocument)Application.Current.Resources["WelcomeDocument"]) { Name = "Welcome" };
+
+            var docMan = new ReadDocumentManager(new List<ReadDocument>() { welcomeText });
+
             // Create the ViewModel to which the main window binds
-            var viewModel = new MainWindowViewModel();
+            var viewModel = new MainWindowViewModel(docMan);
 
             // When the ViewModel asks to be closed, close the window
             viewModel.RequestClose += delegate { window.Close(); };
