@@ -5,9 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
+    <Grid Background="White">
+        <Canvas Background="Transparent" Name="HighLightsPara" Loaded="HighLights_Loaded" />
+        <Canvas Background="Transparent" Name="HighLightsWord" Loaded="HighLightsWord_Loaded" />
         <RichTextBox Name="rtb" VerticalScrollBarVisibility="Auto"
-                     Loaded="rtb_Loaded" IsReadOnly="{Binding Path=Reading}">
+                     Loaded="rtb_Loaded" IsReadOnly="{Binding Path=Reading}" Background="Transparent" LayoutUpdated="rtb_LayoutUpdated">
             <RichTextBox.Document>
                 <FlowDocument>
                     <Paragraph>
@@ -22,5 +24,6 @@
                 </Style>
             </RichTextBox.Resources>
         </RichTextBox>
+        <!--Height="100" Width="100"-->
     </Grid>
 </UserControl>

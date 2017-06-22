@@ -7,6 +7,8 @@ using System.Windows.Input;
 using TextReader.ViewModel;
 using System.Windows.Threading;
 using System.ComponentModel;
+using System.Windows.Shapes;
+using System.Diagnostics;
 
 namespace TextReader.View
 {
@@ -52,6 +54,7 @@ namespace TextReader.View
             Keyboard.Focus(rtb);
         }
 
+
         void fdvm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -60,14 +63,18 @@ namespace TextReader.View
                     var fdvm = (DataContext as ReadDocumentViewModel);
                     if (fdvm == null)
                         return;
-                    
+
+                    rtb.IsDocumentEnabled = false;
+
                     if (!fdvm.Reading)
                     {
-                        unindicate(true);
+                        //unindicate(true);
                         lastWord = null;
-                        lastWordBackground = null;
                         lastParagraph = null;
-                        lastParaBackground = null;
+                        rtb.IsDocumentEnabled = true;
+                        clearHighLightsWord();
+                        clearHighLightsPara();
+                        setHighLights();
                     }
                     break;
                 default:
@@ -83,10 +90,60 @@ namespace TextReader.View
             fdvm.Selection.Select(rtb.Selection.Start, rtb.Selection.End);
         }
 
+
         TextRange lastWord;
-        object lastWordBackground;
+
         TextRange lastParagraph;
-        object lastParaBackground;
+
+        TextRange newRead = null;
+        TextRange lastRead = null;
+
+        void ReadWord_Changed2()
+        {
+            if (newRead == null)
+                return;
+
+            TextRange nowRead = new TextRange(newRead.Start,newRead.End);
+            if (lastRead != null 
+                && nowRead.Start.CompareTo(lastRead.Start) == 0 
+                && nowRead.End.CompareTo(lastRead.End) == 0)
+                return;
+
+            lastRead = new TextRange(nowRead.Start, nowRead.End);
+
+
+            var start = nowRead.Start;
+            var end = nowRead.End;
+            var newWord = new TextRange(start, end);
+
+            bool paragraphChanged = true;
+
+            // Check if paragraph changed
+            if (lastParagraph != null && lastParagraph.Start.IsInSameDocument(start) && lastParagraph.Start.CompareTo(newWord.Start.Paragraph.ContentStart) == 0
+                   && lastParagraph.End.CompareTo(newWord.End.Paragraph.ContentEnd) == 0)
+            {
+                paragraphChanged = false;
+            }
+
+            lastWord = new TextRange(start, end);
+
+            // Save last value and set the new values on word (and paragraph if it changed)
+            if (paragraphChanged)
+            {
+                lastParagraph = new TextRange(lastWord.Start.Paragraph.ContentStart, lastWord.End.Paragraph.ContentEnd);
+            }
+
+            //setHighLights();
+
+            rtb.Selection.Select(lastWord.Start, lastWord.Start);
+
+            srcollToSelection();
+
+
+        }
+
+        private delegate void ZeroArgDelegate();
+
         void ReadWord_Changed(object sender, EventArgs e)
         {
             var fdvm = (DataContext as ReadDocumentViewModel);
@@ -100,42 +157,8 @@ namespace TextReader.View
             var textRange = sender as TextRange;
             if (textRange != null)
             {
-                var start = textRange.Start;
-                var end = textRange.End;
-                var newWord = new TextRange(start, end);
-
-                bool paragraphChanged = true;
-                
-                // Check if paragraph changed
-                if (lastParagraph != null && lastParagraph.Start.IsInSameDocument(start) && lastParagraph.Start.CompareTo(newWord.Start.Paragraph.ContentStart) == 0
-                       && lastParagraph.End.CompareTo(newWord.End.Paragraph.ContentEnd) == 0)
-                {
-                    paragraphChanged = false;
-                }
-
-                // Unindicate last word (and paragraph if it changed)
-                unindicate(paragraphChanged);
-
-                lastWord = new TextRange(start, end);
-
-                // Save last value and set the new values on word (and paragraph if it changed)
-                if (paragraphChanged)
-                {
-                    lastParagraph = new TextRange(lastWord.Start.Paragraph.ContentStart, lastWord.End.Paragraph.ContentEnd);
-                    lastParaBackground = lastParagraph.GetPropertyValue(TextElement.BackgroundProperty);
-                    if (lastParaBackground != null &&
-                        !TextElement.BackgroundProperty.IsValidValue(lastParaBackground))
-                    {
-                        lastParaBackground = null;
-                    }
-                    lastParagraph.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Yellow);
-                }
-                lastWordBackground = lastWord.GetPropertyValue(TextElement.BackgroundProperty);
-                lastWord.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.LightGreen);
-
-                rtb.Selection.Select(lastWord.Start, lastWord.Start);
-
-                srcollToSelection();
+                newRead = textRange;
+                Dispatcher.BeginInvoke(new ZeroArgDelegate(ReadWord_Changed2), DispatcherPriority.Render, null);
             }
         }
 
@@ -151,24 +174,164 @@ namespace TextReader.View
 
                 rtb.ScrollToVerticalOffset(rtb.VerticalOffset - y);
             }
+            setHighLights();
         }
 
-        private void unindicate(bool paragraph)
+        private void addTextPointerRects(Panel panel, TextRange range, Brush brush)
         {
-            if (lastWord != null)
-            {
-                lastWord.ApplyPropertyValue(TextElement.BackgroundProperty, lastWordBackground);
+            if (range == null)
+                return;
 
-                if (paragraph)
+            //TextPointer s = range.Start;
+
+            var res = range.Start;
+
+            var rectS = res.GetCharacterRect(LogicalDirection.Forward);
+
+            var shapes = new System.Collections.Generic.LinkedList<Shape>();
+            Action<TextPointer, TextPointer> instert = ( (tr,tr2) =>
+            {
+                //var rectS = tr.GetCharacterRect(LogicalDirection.Forward);
+                //var tr2 = tr.GetNextInsertionPosition(LogicalDirection.Forward);
+                var rectE = tr2.GetCharacterRect(LogicalDirection.Backward);
+
+                // Do not add if on a new line
+                if (rectS.Top != rectE.Top)
                 {
-                    lastParagraph.ApplyPropertyValue(TextElement.BackgroundProperty, lastParaBackground);
+                    rectS = tr.GetCharacterRect(LogicalDirection.Forward);
                 }
+                // Do not add if on a new line
+                if (rectS.Top == rectE.Top)
+                {
+                    try
+                    {
+
+                        var shape = new Rectangle()
+                        {
+                            Margin = new Thickness(rectS.Left, rectS.Top, 0, 0),
+                            Height = rectS.Height,
+                            Width = rectE.Right - rectS.Left,
+                            Fill = brush,
+                            //StrokeThickness = 1,
+                            //Stroke = Brushes.Black,
+                        };
+                        shapes.AddLast(shape);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+                rectS = rectE;
+            });
+
+
+            // we simly travers the textpoint untill we count reaches 0
+            while (res != null && range.End.CompareTo(res) > 0)
+            {
+                var next = res.GetNextInsertionPosition(LogicalDirection.Forward);
+                //var next = res.GetNextContextPosition(LogicalDirection.Forward);
+                instert(res,next);
+                res = next;
             }
+
+            foreach (var s in shapes)
+            {
+                panel.Children.Add(s);
+            }
+        }
+
+        
+        int i = 0;
+
+        private void setHighLights()
+        {
+            setHighLightsPara();
+            setHighLightsWord();
+        }
+
+        Rect lastStartParaRect = new Rect();
+
+        private void clearHighLightsPara()
+        {
+            lastStartParaRect = new Rect();
+            if (hlPara == null)
+                return;
+            hlPara.Children.Clear();
+        }
+
+        private void setHighLightsPara()
+        {
+            if (hlPara == null)
+                return;
+            if (lastParagraph == null)
+                return;
+            if (lastStartParaRect == lastParagraph.Start.GetCharacterRect(LogicalDirection.Forward))
+                return;
+
+            clearHighLightsPara();
+
+            lastStartParaRect = lastParagraph.Start.GetCharacterRect(LogicalDirection.Forward);
+
+            Debug.WriteLine(i++);
+
+            addTextPointerRects(hlPara, lastParagraph, Brushes.Yellow);
+
+        }
+
+        Rect lastStartRect = new Rect();
+
+        private void clearHighLightsWord()
+        {
+            lastStartRect = new Rect();
+            if (hl == null)
+                return;
+            hl.Children.Clear();
+        }
+
+        private void setHighLightsWord()
+        {
+            if (hl == null)
+                return;
+            if (lastWord == null)
+                return;
+            if (lastStartRect == lastWord.Start.GetCharacterRect(LogicalDirection.Forward))
+                return;
+            clearHighLightsWord();
+            lastStartRect = lastWord.Start.GetCharacterRect(LogicalDirection.Forward);
+
+
+            addTextPointerRects(hl, lastWord, Brushes.LightGreen);
+
         }
 
         private void rtb_Loaded(object sender, RoutedEventArgs e)
         {
             Keyboard.Focus(rtb);
+        }
+
+
+        Polygon wb = null;
+        private void WordBorder_Loaded(object sender, RoutedEventArgs e)
+        {
+            wb = sender as Polygon;
+        }
+
+        Canvas hl = null;
+        private void HighLights_Loaded(object sender, RoutedEventArgs e)
+        {
+            hlPara = sender as Canvas;
+        }
+
+        private void rtb_LayoutUpdated(object sender, EventArgs e)
+        {
+            setHighLights();
+        }
+
+        Canvas hlPara = null;
+        private void HighLightsWord_Loaded(object sender, RoutedEventArgs e)
+        {
+            hl = sender as Canvas;
+
         }
     }
 }
