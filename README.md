@@ -4,4 +4,4 @@ Text reader allows you to enter a text and it will read it up for you using TTS 
 
 It's developed in C#.
 
-[](docs/main%25screen.GIF)
+![Image of screen reading the start text](docs/main%20screen.GIF)
