@@ -102,9 +102,11 @@ namespace TextReader.View
         {
             if (newRead == null)
                 return;
+            
 
             TextRange nowRead = new TextRange(newRead.Start,newRead.End);
-            if (lastRead != null 
+            if (lastRead != null
+                && nowRead.Start.IsInSameDocument(lastRead.Start)
                 && nowRead.Start.CompareTo(lastRead.Start) == 0 
                 && nowRead.End.CompareTo(lastRead.End) == 0)
                 return;
